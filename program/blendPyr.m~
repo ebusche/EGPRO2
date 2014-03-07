@@ -1,0 +1,72 @@
+function [ imout ] = blendPyr( imga, imgb, trans)
+    imga = im2double(imga);
+    imgb = im2double(imgb);
+    
+    [row1, col1, channel] = size(imga);
+    [row2, col2, channel] = size(imgb);
+    
+    
+    imout = zeros(row1+trans(2), col1+abs(trans(1)), channel);
+    
+    %create images the right size
+    newimga = zeros(row1+abs(trans(2)), col1+abs(trans(1)), channel);
+    newimgb = zeros(row1+abs(trans(2)), col1+abs(trans(1)), channel);
+
+    %create images a b that have been translated correctly
+    for i = 1 : row1
+        for j = 1 : col1
+            if trans(2) < 0
+                newimga(i, j, :) = imga(i, j, :);
+            else
+                newimga(i + abs(trans(2)), j, :) = imga(i, j, :);
+            end
+        end
+    end
+        %figure,imshow(newimga)
+
+    for i = 1 : row2
+        for j = 1 : col2
+            if trans(2) < 0
+                newimgb(i+abs(trans(2)), end - col2 + j, :) = imgb(i, j, :);
+            else
+                newimgb(i,end - col2 + j, :) = imgb(i, j, :);
+            end
+        end
+    end
+        %figure,imshow(newimgb)
+
+    blendWidth = col1 + trans(1)*.5;%how far across to do the blending
+
+        [M N ~] = size(imout);
+
+
+    level = 5;
+    limga = genPyr(newimga,level); % the Laplacian pyramid
+    limgb = genPyr(newimgb,level);
+    %figure,imshow(limga{1})
+
+    maska = zeros(row1+abs(trans(2)), col1+abs(trans(1)), channel);
+    maska(:,1:blendWidth,:) = 1;
+    maskb = zeros(row1+abs(trans(2)), col1+abs(trans(1)), channel);
+    maskb= 1 -maska;
+    %figure,imshow(maska)
+    %figure,imshow(maskb)
+    blurh = fspecial('gauss',30,15); % feather the border
+    maska = imfilter(maska,blurh,'replicate');
+    maskb = imfilter(maskb,blurh,'replicate');
+
+    limgo = cell(1,level); % the blended pyramid
+    for p = 1:level
+        [Mp Np ~] = size(limga{p});
+        maskap = imresize(maska,[Mp Np]);
+        maskbp = imresize(maskb,[Mp Np]);
+        limgo{p} = limga{p}.*maskap + limgb{p}.*maskbp;
+    end
+    imgo = pyrReconstruct(limgo);
+    figure,imshow(imgo) % blend by pyramid
+    %imgo1 = maska.*newimga+maskb.*newimgb;
+    %figure,imshow(imgo1) % blend by feathering
+
+    imout = im2uint8(imgo);
+
+    end

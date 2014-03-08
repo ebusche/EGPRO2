@@ -2,7 +2,7 @@ function main()
 
 imagePath = 'C:/Users/Emily/p2/capitols';     % i path of the images
 outFile = 'capitols_stitched.png';       % output stitched file.
-N = 19;     % number of images in the sequence
+N = 18;     % number of images in the sequence
 focal_length = 660.8799;     % focal length
 
 disp('FEATURE DETECTION');
@@ -51,6 +51,7 @@ for i  = 2:N
     imNow = blendPyr(imNow, ims{i}, trans{i-1});
 end
 
+%the last image blended with the first image
 imNow = blendPyr(imNow, ims{1}, trans{N});
 
 

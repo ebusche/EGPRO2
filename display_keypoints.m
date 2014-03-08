@@ -1,6 +1,4 @@
-function hh = display_keypoints( pos, scale, orient, varargin )
-
-% h = display_keypoints( pos, orient, scale, magnify )
+% display_keypoints.m
 %
 % Display an image with keyponts overlayed showing orientation
 % and scale.
@@ -12,9 +10,10 @@ function hh = display_keypoints( pos, scale, orient, varargin )
 % magnify - factor to scale the length of the vectors by. 
 %
 % Output:
-% h - returns a vector of the line handles.
+% hh - returns a vector of the line handles.
 %
 
+function hh = display_keypoints( pos, scale, orient, varargin )
 
 hold on;
 

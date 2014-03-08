@@ -1,16 +1,16 @@
-close all
-clear
-imga = im2double(imread('apple1.jpg'));
-imgb = im2double(imread('orange1.jpg')); % size(imga) = size(imgb)
-imga = imresize(imga,[size(imgb,1) size(imgb,2)]);
-[M N ~] = size(imga);
+function [ imageout ] = pyrBlend( imA, imB)
 
-v = 230;
+imageA = im2double(imread(imA));
+imageB = im2double(imread(imB)); % size(imga) = size(imgb)
+imageA = imresize(imageA,[size(imageB,1) size(imageB,2)]);
+[M N ~] = size(imageA);
+
+v = N/2;
 level = 5;
-limga = genPyr(imga,'lap',level); % the Laplacian pyramid
-limgb = genPyr(imgb,'lap',level);
+limga = genPyr(imageA, level); % the Laplacian pyramid
+limgb = genPyr(imageB, level);
 
-maska = zeros(size(imga));
+maska = zeros(size(imageA));
 maska(:,1:v,:) = 1;
 maskb = 1-maska;
 blurh = fspecial('gauss',30,15); % feather the border
@@ -26,5 +26,4 @@ for p = 1:level
 end
 imgo = pyrReconstruct(limgo);
 figure,imshow(imgo) % blend by pyramid
-imgo1 = maska.*imga+maskb.*imgb;
-figure,imshow(imgo1) % blend by feathering
+imageout = im2uint8(imgo);
